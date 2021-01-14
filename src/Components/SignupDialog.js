@@ -8,7 +8,11 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Box from '@material-ui/core/Box';
 
+import AuthContext from '../AuthContext';
+
 export default function SignupDialog(props) {
+
+    const {setCurrentUser} = React.useContext(AuthContext);
 
     const handleClose = () => {
         props.setOpen(false);
@@ -36,7 +40,8 @@ export default function SignupDialog(props) {
                 if(response.status === 200){
                     response.json().then(value=>{
                         // console.log(value)
-                        localStorage.setItem('token',value.token)
+                        localStorage.setItem('token',value.token);
+                        setCurrentUser(value.user);
                         props.setOpen(false);
                     })
                 }

@@ -1,27 +1,27 @@
 import React from 'react';
+import {withRouter} from 'react-router-dom'
 import { fade, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
-import Badge from '@material-ui/core/Badge';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
 // import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import MailIcon from '@material-ui/icons/Mail';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import MoreIcon from '@material-ui/icons/MoreVert';
 import { Button } from '@material-ui/core';
 
 import SigninDialog from './SigninDialog';
-import SignupDialog from './SignupDialog'; 
+import SignupDialog from './SignupDialog';
+import AuthContext from '../AuthContext';
 
 const useStyles = makeStyles((theme) => ({
     grow: {
         flexGrow: 1,
+        padding: theme.spacing(0),
+        margin: theme.spacing(0)
     },
     menuButton: {
         marginRight: theme.spacing(2),
@@ -70,7 +70,7 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     sectionDesktop: {
-        display: 'none',
+        display: 'flex',
         [theme.breakpoints.up('md')]: {
             display: 'flex',
         },
@@ -90,32 +90,61 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function NavigationBar(props) {
+export default withRouter(function NavigationBar(props) {
+    const token = localStorage.getItem('token');
     const classes = useStyles();
     const [anchorEl, setAnchorEl] = React.useState(null);
-    const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
-    const [signinDialogOpen,setSigninDialohOpen] = React.useState(false)
-    const [signupDialohOpen,setSignupDialogOpen] = React.useState(false)
+    const [signinDialogOpen, setSigninDialohOpen] = React.useState(false)
+    const [signupDialohOpen, setSignupDialogOpen] = React.useState(false);
+    const [authorised, setAuthorised] = React.useState(false);
 
     const isMenuOpen = Boolean(anchorEl);
-    const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+    // const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+
+    const { setCurrentUser } = React.useContext(AuthContext);
+
+    React.useEffect(() => {
+        if (token) {
+            setAuthorised(true);
+        }
+        else {
+            setAuthorised(false);
+        }
+    }, [token])
 
     const handleProfileMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
     };
 
-    const handleMobileMenuClose = () => {
-        setMobileMoreAnchorEl(null);
-    };
-
     const handleMenuClose = () => {
         setAnchorEl(null);
-        handleMobileMenuClose();
     };
 
-    const handleMobileMenuOpen = (event) => {
-        setMobileMoreAnchorEl(event.currentTarget);
-    };
+    const handleLogOut = () => {
+        fetch(process.env.REACT_APP_API_URL + '/api/user/logout', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            method: "GET"
+        }).then((response) => {
+            if (response.status === 200) {
+                response.json().then(value => {
+                    setAnchorEl(null)
+                    localStorage.removeItem('token');
+                    setCurrentUser(null);
+                    setAuthorised(false);
+                    props.history.push('/')
+                })
+            }
+            else {
+                localStorage.removeItem('token');
+                setCurrentUser(null);
+                setAuthorised(false)
+            }
+        })
+    }
 
     const menuId = 'primary-search-account-menu';
     const renderMenu = (
@@ -128,49 +157,8 @@ export default function NavigationBar(props) {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
-            <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-            <MenuItem onClick={handleMenuClose}>My account</MenuItem>
-        </Menu>
-    );
-
-    const mobileMenuId = 'primary-search-account-menu-mobile';
-    const renderMobileMenu = (
-        <Menu
-            anchorEl={mobileMoreAnchorEl}
-            anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            id={mobileMenuId}
-            keepMounted
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-            open={isMobileMenuOpen}
-            onClose={handleMobileMenuClose}
-        >
-            <MenuItem>
-                <IconButton aria-label="show 4 new mails" color="inherit">
-                    <Badge badgeContent={4} color="secondary">
-                        <MailIcon />
-                    </Badge>
-                </IconButton>
-                <p>Messages</p>
-            </MenuItem>
-            <MenuItem>
-                <IconButton aria-label="show 11 new notifications" color="inherit">
-                    <Badge badgeContent={11} color="secondary">
-                        <NotificationsIcon />
-                    </Badge>
-                </IconButton>
-                <p>Notifications</p>
-            </MenuItem>
-            <MenuItem onClick={handleProfileMenuOpen}>
-                <IconButton
-                    aria-label="account of current user"
-                    aria-controls="primary-search-account-menu"
-                    aria-haspopup="true"
-                    color="inherit"
-                >
-                    <AccountCircle />
-                </IconButton>
-                <p>Profile</p>
-            </MenuItem>
+            <MenuItem onClick={()=>{props.history.push('/profile');setAnchorEl(null);}}>Profile</MenuItem>
+            <MenuItem onClick={handleLogOut}>Logout</MenuItem>
         </Menu>
     );
 
@@ -178,9 +166,11 @@ export default function NavigationBar(props) {
         <div className={classes.grow}>
             <AppBar position="sticky">
                 <Toolbar>
-                    <Typography className={classes.title} variant="h6" noWrap>
+                <Button style={{ color: "#ffffff" }} onClick={()=>{props.history.push('/')}}><Typography className={classes.title} variant="h6" noWrap>
                         SnippetBook
                     </Typography>
+                    </Button>
+                    
                     <div className={classes.grow} />
                     <div className={classes.search}>
                         <div className={classes.searchIcon}>
@@ -198,34 +188,27 @@ export default function NavigationBar(props) {
                     </div>
                     <div className={classes.grow} />
                     <div className={classes.sectionDesktop}>
-                        <Button variant="contained" onClick={()=>{setSigninDialohOpen(true)}}>Login</Button>
-                        <Button variant="contained" onClick={()=>{setSignupDialogOpen(true)}}>Signup</Button>
-                        {/* <IconButton
-                            edge="end"
-                            aria-label="account of current user"
-                            aria-controls={menuId}
-                            aria-haspopup="true"
-                            onClick={handleProfileMenuOpen}
-                            color="inherit"
-                        >
-                            <AccountCircle />
-                        </IconButton> */}
-
-                    </div>
-                    <div className={classes.sectionMobile}>
-                        <IconButton
-                            aria-label="show more"
-                            aria-controls={mobileMenuId}
-                            aria-haspopup="true"
-                            onClick={handleMobileMenuOpen}
-                            color="inherit"
-                        >
-                            <MoreIcon />
-                        </IconButton>
+                        {!authorised &&
+                            <React.Fragment>
+                                <Button  onClick={() => { setSigninDialohOpen(true) }}>Login</Button>
+                                <Button  onClick={() => { setSignupDialogOpen(true) }}>Signup</Button></React.Fragment>}
+                        {authorised &&
+                            <React.Fragment>
+                                <Button style={{ color: "#ffffff" }} onClick={()=>{props.history.push('/your_snippets')}}>Your Snippets</Button>
+                                <IconButton
+                                    edge="end"
+                                    aria-label="account of current user"
+                                    aria-controls={menuId}
+                                    aria-haspopup="true"
+                                    onClick={handleProfileMenuOpen}
+                                    color="inherit"
+                                >
+                                    <AccountCircle />
+                                </IconButton>
+                            </React.Fragment>}
                     </div>
                 </Toolbar>
             </AppBar>
-            {renderMobileMenu}
             {renderMenu}
             <div>
                 {props.children}
@@ -234,4 +217,4 @@ export default function NavigationBar(props) {
             <SignupDialog open={signupDialohOpen} setOpen={setSignupDialogOpen}></SignupDialog>
         </div>
     );
-}
+})

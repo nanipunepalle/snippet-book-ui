@@ -1,6 +1,6 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Grid, Paper } from '@material-ui/core';
+import { Button, Grid, Paper, Typography } from '@material-ui/core';
 
 import HomeCard from '../Components/HomeCard';
 
@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function Home(props) {
+export default function YourSnippets(props) {
     const classes = useStyles();
     const token = localStorage.getItem('token');
     const [posts, setPosts] = React.useState([]);
@@ -41,7 +41,7 @@ export default function Home(props) {
 
     React.useEffect(() => {
         if(token){
-            fetch(process.env.REACT_APP_API_URL + '/api/get_all_posts', {
+            fetch(process.env.REACT_APP_API_URL + '/api/get_your_posts', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -51,7 +51,6 @@ export default function Home(props) {
             }).then((response) => {
                 if (response.status === 200) {
                     response.json().then(value => {
-                        console.log(value)
                         setPosts(value.reverse())
                     })
                 }
@@ -60,35 +59,14 @@ export default function Home(props) {
                 }
             })
         }
-        else{
-            fetch(process.env.REACT_APP_API_URL + '/api/get_public_posts', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                method: "GET"
-            }).then((response) => {
-                if (response.status === 200) {
-                    response.json().then(value => {
-                        console.log(value)
-                        setPosts(value.reverse())
-                    })
-                }
-                else {
-                    localStorage.removeItem('token')
-                }
-            })
-        }
-        
     }, [token])
-
-    console.log(posts)
     return (
         <div className={classes.grow}>
             <Grid container component="main">
                 <Grid item xs={12} md={2}>
                 </Grid>
                 <Grid item xs={12} md={8}>
+                <Typography variant="h5" style={{margin:"10px"}}>Your Snippets</Typography>
                     {
                         posts.map((post, index) => {
                             return <HomeCard post={post}></HomeCard>

@@ -7,11 +7,11 @@ import CardActions from '@material-ui/core/CardActions';
 import Avatar from '@material-ui/core/Avatar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
-import { red } from '@material-ui/core/colors';
-import FavoriteIcon from '@material-ui/icons/Favorite';
+// import FavoriteIcon from '@material-ui/icons/Favorite';
 import ShareIcon from '@material-ui/icons/Share';
 // import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MoreVertIcon from '@material-ui/icons/MoreVert';
+import ThumbUpIcon from '@material-ui/icons/ThumbUp';
 
 
 import AceEditor from 'react-ace';
@@ -22,60 +22,61 @@ import "ace-builds/src-noconflict/theme-monokai";
 const useStyles = makeStyles((theme) => ({
     root: {
         // maxWidth: 345,
-        padding: theme.spacing(2),
-        margin: theme.spacing(2),
-        backgroundColor: theme.palette.background.default
+        padding: theme.spacing(1),
+        margin: theme.spacing(3),
+        backgroundColor: theme.palette.secondary.main,
+        borderRadius: theme.spacing(1)
     },
     media: {
         height: 0,
         paddingTop: '56.25%', // 16:9
     },
     avatar: {
-        backgroundColor: red[500],
+        backgroundColor: theme.palette.primary.main,
     },
 }));
 
-export default function HomeCard() {
+export default function HomeCard(props) {
     const classes = useStyles();
+    const [postedDate, setPostedDate] = React.useState(null);
+    const post = props.post;
 
-    const [code, setCode] = React.useState(null);
-
-    function onChange(newValue) {
-        setCode(newValue);
-    }
+    React.useEffect(() => {
+        const postedate = new Date(post.posted_on.$date);
+        setPostedDate(postedate);
+    }, [post])
 
     return (
         <Card className={classes.root}>
             <CardHeader
                 avatar={
-                    <Avatar aria-label="recipe" className={classes.avatar}>
-                        R
-          </Avatar>
+                    <Avatar aria-label={post.user_name} className={classes.avatar}>
+                        <Typography style={{ color: "#ffffff" }}>{post.user_name[0]}</Typography>
+                    </Avatar>
                 }
                 action={
                     <IconButton aria-label="settings">
                         <MoreVertIcon />
                     </IconButton>
                 }
-                title="Shrimp and Chorizo Paella"
-                subheader="September 14, 2016"
+                title={post.user_name}
+                subheader={postedDate !== null && postedDate.toDateString()}
             />
             <CardContent>
                 <Typography variant="body2" color="textSecondary" component="p">
-                    This impressive paella is a perfect party dish and a fun meal to cook together with your
-                    guests. Add 1 cup of frozen peas along with the mussels, if you like.
-        </Typography>
+                    {post.desc}
+                </Typography>
             </CardContent>
             <AceEditor
                 height="300px"
                 width="100%"
                 theme="monokai"
-                value={code}
-                onChange={onChange}
+                value={post.code}
+                readOnly
                 mode="javascript" />
             <CardActions disableSpacing>
                 <IconButton aria-label="add to favorites">
-                    <FavoriteIcon />
+                    <ThumbUpIcon />
                 </IconButton>
                 <IconButton aria-label="share">
                     <ShareIcon />

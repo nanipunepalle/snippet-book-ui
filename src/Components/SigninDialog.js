@@ -8,24 +8,27 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Box from '@material-ui/core/Box';
 
+import AuthContext from '../AuthContext';
+
 export default function SigninDialog(props) {
+
+    const {setCurrentUser} = React.useContext(AuthContext);
 
     const handleClose = () => {
         props.setOpen(false);
     };
 
-    const handleSignup = (e) => {
+    const handleSignin = (e) => {
         e.preventDefault()
-        const { email, fullName, password } = e.target.elements;
+        const { email, password } = e.target.elements;
         try {
             var data = new FormData()
             const payload = {
                 email: email.value,
                 password: password.value,
-                name: fullName.value
             };
             data = JSON.stringify(payload);
-            fetch(process.env.REACT_APP_API_URL + '/api/signup', {
+            fetch(process.env.REACT_APP_API_URL + '/api/signin', {
                 headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
@@ -36,7 +39,9 @@ export default function SigninDialog(props) {
                 if(response.status === 200){
                     response.json().then(value=>{
                         // console.log(value)
-                        localStorage.setItem('token',value.token)
+                        localStorage.setItem('token',value.token);
+                        console.log(value.user)
+                        setCurrentUser(value.user);
                         props.setOpen(false);
                     })
                 }
@@ -51,18 +56,8 @@ export default function SigninDialog(props) {
         <div>
             <Dialog open={props.open} onClose={handleClose} maxWidth="sm" fullWidth aria-labelledby="form-dialog-title">
                 <DialogTitle id="form-dialog-title"><Box display="flex" justifyContent="center">Signup</Box></DialogTitle>
-                <form onSubmit={handleSignup} style={{padding:"20px",paddingTop:"0px"}}>
+                <form onSubmit={handleSignin} style={{padding:"20px",paddingTop:"0px"}}>
                     <DialogContent>
-                        <TextField
-                            autoFocus
-                            required
-                            margin="dense"
-                            id="name"
-                            name="fullName"
-                            label="Full Name"
-                            type="text"
-                            fullWidth
-                        />
                         <TextField
                             margin="dense"
                             required
@@ -84,7 +79,7 @@ export default function SigninDialog(props) {
                     </DialogContent>
                     <DialogActions>
                         <Button fullWidth variant="contained" type="submit" color="primary">
-                            Signup
+                            Signin
                         </Button>
                     </DialogActions>
                 </form>
