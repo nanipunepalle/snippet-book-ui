@@ -1,5 +1,5 @@
 import React from 'react';
-import {withRouter} from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import { fade, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -12,6 +12,14 @@ import Menu from '@material-ui/core/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import { Button } from '@material-ui/core';
+// import Autocomplete from '@material-ui/lab/Autocomplete';
+// import TextField from '@material-ui/core/TextField';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import Grow from '@material-ui/core/Grow';
+import Paper from '@material-ui/core/Paper';
+import Popper from '@material-ui/core/Popper';
+// import MenuItem from '@material-ui/core/MenuItem';
+import MenuList from '@material-ui/core/MenuList';
 
 import SigninDialog from './SigninDialog';
 import SignupDialog from './SignupDialog';
@@ -97,11 +105,48 @@ export default withRouter(function NavigationBar(props) {
     const [signinDialogOpen, setSigninDialohOpen] = React.useState(false)
     const [signupDialohOpen, setSignupDialogOpen] = React.useState(false);
     const [authorised, setAuthorised] = React.useState(false);
+    const [isHome, setIsHome] = React.useState(true);
+    const posts = props.posts
+    const [sortedPosts, setSortedPosts] = React.useState([])
 
     const isMenuOpen = Boolean(anchorEl);
     // const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
     const { setCurrentUser } = React.useContext(AuthContext);
+
+    const [open, setOpen] = React.useState(false);
+    const anchorRef = React.useRef(null);
+
+    const handleToggle = () => {
+        // setOpen((prevOpen) => !prevOpen);
+        setOpen(true)
+        // anchorRef.focus()
+    };
+
+    const handleClose = (event) => {
+        if (anchorRef.current && anchorRef.current.contains(event.target)) {
+            return;
+        }
+
+        setOpen(false);
+    };
+
+    function handleListKeyDown(event) {
+        if (event.key === 'Tab') {
+            event.preventDefault();
+            setOpen(false);
+        }
+    }
+
+    // return focus to the button when we transitioned from !open -> open
+    //   const prevOpen = React.useRef(open);
+    //   React.useEffect(() => {
+    //     if (prevOpen.current === true && open === false) {
+    //       anchorRef.current.focus();
+    //     }
+
+    //     prevOpen.current = open;
+    //   }, [open]);
 
     React.useEffect(() => {
         if (token) {
@@ -157,20 +202,37 @@ export default withRouter(function NavigationBar(props) {
             open={isMenuOpen}
             onClose={handleMenuClose}
         >
-            <MenuItem onClick={()=>{props.history.push('/profile');setAnchorEl(null);}}>Profile</MenuItem>
+            <MenuItem onClick={() => { props.history.push('/profile'); setAnchorEl(null); }}>Profile</MenuItem>
             <MenuItem onClick={handleLogOut}>Logout</MenuItem>
         </Menu>
     );
+
+    const handleYourSnippetsButton = () => {
+        if (isHome) {
+            setIsHome(false);
+            props.history.push('/your_snippets')
+        }
+        else {
+            setIsHome(true);
+            props.history.push('/')
+        }
+    }
+
+    const handleSearchChange = (e) => {
+        setSortedPosts(posts.filter(p => { return p.desc.toLowerCase().includes(e.target.value.toLowerCase()) }))
+    }
+
+
 
     return (
         <div className={classes.grow}>
             <AppBar position="sticky">
                 <Toolbar>
-                <Button style={{ color: "#ffffff" }} onClick={()=>{props.history.push('/')}}><Typography className={classes.title} variant="h6" noWrap>
+                    <Button style={{ color: "#ffffff" }} onClick={() => { setIsHome(true);props.history.push('/') }}><Typography className={classes.title} variant="h6" noWrap>
                         SnippetBook
                     </Typography>
                     </Button>
-                    
+
                     <div className={classes.grow} />
                     <div className={classes.search}>
                         <div className={classes.searchIcon}>
@@ -179,28 +241,54 @@ export default withRouter(function NavigationBar(props) {
                         <InputBase
                             fullWidth
                             placeholder="Search…"
+                            onChange={handleSearchChange}
                             classes={{
                                 root: classes.inputRoot,
                                 input: classes.inputInput,
                             }}
+                            onFocus={handleToggle}
+                            // onBlur={handleSearchChange}
                             inputProps={{ 'aria-label': 'search' }}
+                            ref={anchorRef}
                         />
+
+                        <Popper open={open} anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+                            {({ TransitionProps, placement }) => (
+                                <Grow
+                                    {...TransitionProps}
+                                    style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
+                                >
+                                    <Paper elevation={0} style={{ maxWidth: "700px", minWidth: "700px" }}>
+                                        <ClickAwayListener onClickAway={handleClose}>
+                                            <MenuList id="sorted-posts-list" onKeyDown={handleListKeyDown}>
+                                                {
+                                                    sortedPosts.map((post, index) => {
+                                                        return <MenuItem key={index} onClick={handleClose}>{post.desc}</MenuItem>
+                                                    })
+                                                }
+                                            </MenuList>
+                                        </ClickAwayListener>
+                                    </Paper>
+                                </Grow>
+                            )}
+                        </Popper>
                     </div>
                     <div className={classes.grow} />
                     <div className={classes.sectionDesktop}>
                         {!authorised &&
                             <React.Fragment>
-                                <Button  onClick={() => { setSigninDialohOpen(true) }}>Login</Button>
-                                <Button  onClick={() => { setSignupDialogOpen(true) }}>Signup</Button></React.Fragment>}
+                                <Button style={{ color: "#ffffff" }} onClick={() => { setSigninDialohOpen(true) }}>Login</Button>
+                                <Button style={{ color: "#ffffff" }} onClick={() => { setSignupDialogOpen(true) }}>Signup</Button></React.Fragment>}
                         {authorised &&
                             <React.Fragment>
-                                <Button style={{ color: "#ffffff" }} onClick={()=>{props.history.push('/your_snippets')}}>Your Snippets</Button>
+                                <Button style={{ color: "#ffffff" }} onClick={handleYourSnippetsButton}>{isHome ? "Your Snippets" : "Home"}</Button>
                                 <IconButton
                                     edge="end"
                                     aria-label="account of current user"
                                     aria-controls={menuId}
                                     aria-haspopup="true"
                                     onClick={handleProfileMenuOpen}
+
                                     color="inherit"
                                 >
                                     <AccountCircle />
@@ -209,6 +297,7 @@ export default withRouter(function NavigationBar(props) {
                     </div>
                 </Toolbar>
             </AppBar>
+
             {renderMenu}
             <div>
                 {props.children}

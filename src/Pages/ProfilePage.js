@@ -9,7 +9,7 @@ import Grid from '@material-ui/core/Grid';
 
 import Box from '@material-ui/core/Box';
 import HomeCard from '../Components/HomeCard';
-
+import AuthContext from '../AuthContext';
 
 const useStyles = makeStyles((theme) => ({
     avatar: {
@@ -41,31 +41,31 @@ function ProfilePage(props) {
     const classes = useStyles();
     const token = localStorage.getItem('token');
     const [value, setValue] = React.useState(0);
-    // const {currentUser} = React.useContext(AuthContext);
-    const [currentUser, setCurrentUser] = React.useState(null);
+    const {currentUser} = React.useContext(AuthContext);
+    // const [currentUser, setCurrentUser] = React.useState(null);
     const [posts, setPosts] = React.useState([]);
     const [sortedPosts,setSortedPosts] = React.useState([]);
 
     React.useEffect(() => {
         if (token) {
-            fetch(process.env.REACT_APP_API_URL + '/api/user/me', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                method: "GET"
-            }).then((response) => {
-                if (response.status === 200) {
-                    response.json().then(value => {
-                        setCurrentUser(value.reverse());
-                    })
-                }
-                else {
-                    setCurrentUser(null);
-                    localStorage.removeItem('token')
-                }
-            })
+            // fetch(process.env.REACT_APP_API_URL + '/api/user/me', {
+            //     headers: {
+            //         'Authorization': `Bearer ${token}`,
+            //         'Content-Type': 'application/json',
+            //         'Accept': 'application/json'
+            //     },
+            //     method: "GET"
+            // }).then((response) => {
+            //     if (response.status === 200) {
+            //         response.json().then(value => {
+            //             setCurrentUser(value);
+            //         })
+            //     }
+            //     else {
+            //         setCurrentUser(null);
+            //         localStorage.removeItem('token')
+            //     }
+            // })
             fetch(process.env.REACT_APP_API_URL + '/api/get_your_posts', {
                 headers: {
                     'Authorization': `Bearer ${token}`,

@@ -7,19 +7,22 @@ import DialogContent from '@material-ui/core/DialogContent';
 // import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Box from '@material-ui/core/Box';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import AuthContext from '../AuthContext';
 
 export default function SignupDialog(props) {
 
     const {setCurrentUser} = React.useContext(AuthContext);
+    const [loading,setLoading] = React.useState(false);
 
     const handleClose = () => {
         props.setOpen(false);
     };
 
     const handleSignup = (e) => {
-        e.preventDefault()
+        e.preventDefault();
+        setLoading(true);
         const { email, fullName, password } = e.target.elements;
         try {
             var data = new FormData()
@@ -43,6 +46,7 @@ export default function SignupDialog(props) {
                         localStorage.setItem('token',value.token);
                         setCurrentUser(value.user);
                         props.setOpen(false);
+                        setLoading(false);
                     })
                 }
             })
@@ -51,6 +55,11 @@ export default function SignupDialog(props) {
 
         }
     }
+
+    // const handleSigninInsteadClick = () => {
+    //     // props.setOpen(false);
+    //     // setSigninDialohOpen(true);
+    // }
 
     return (
         <div>
@@ -88,10 +97,15 @@ export default function SignupDialog(props) {
                         />
                     </DialogContent>
                     <DialogActions>
-                        <Button fullWidth variant="contained" type="submit" color="primary">
-                            Signup
+                        <Button fullWidth variant="contained" type="submit" color="primary" disabled={loading}>
+                        {loading ? <CircularProgress color="primary" size={24} /> : "Sign Up"}
                         </Button>
                     </DialogActions>
+                    {/* <Box display="flex">
+                        <Box>
+                            <Button onClick={handleSigninInsteadClick}>Already User? Signin</Button>
+                        </Box>
+                    </Box> */}
                 </form>
             </Dialog>
         </div>

@@ -1,8 +1,13 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Grid, Paper } from '@material-ui/core';
+import Skeleton from '@material-ui/lab/Skeleton';
+import Fab from '@material-ui/core/Fab';
+import AddIcon from '@material-ui/icons/Add';
 
 import HomeCard from '../Components/HomeCard';
+import PostsContext from '../PostsContext';
+import SigninDialog from '../Components/SigninDialog';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -20,7 +25,10 @@ const useStyles = makeStyles((theme) => ({
         margin: theme.spacing(1),
         height: '89vh',
         top: theme.spacing(10),
-        backgroundColor: theme.palette.primary.light
+        backgroundColor: theme.palette.primary.light,
+        [theme.breakpoints.down('md')]: {
+            display: 'none',
+        },
     },
     subRpaper: {
         position: 'relative',
@@ -28,74 +36,63 @@ const useStyles = makeStyles((theme) => ({
         maxHeight: '89vh',
         backgroundColor: theme.palette.primary.light
     },
+    fab: {
+        position: 'fixed',
+        bottom: theme.spacing(2),
+        right: theme.spacing(2),
+        zIndex: 10,
+        [theme.breakpoints.up('lg')]: {
+            display: 'none',
+        },
+    },
 }));
 
 export default function Home(props) {
     const classes = useStyles();
     const token = localStorage.getItem('token');
-    const [posts, setPosts] = React.useState([]);
+    // const [posts, setPosts] = React.useState([]);
+    const {posts, contextLoading} = React.useContext(PostsContext);
+    const [signinDialogOpen,setSigninDialohOpen] = React.useState(false);
 
     const handleAddButton = () => {
-        props.history.push('/add_snippet')
-    }
-
-    React.useEffect(() => {
         if(token){
-            fetch(process.env.REACT_APP_API_URL + '/api/get_all_posts', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                method: "GET"
-            }).then((response) => {
-                if (response.status === 200) {
-                    response.json().then(value => {
-                        console.log(value)
-                        setPosts(value.reverse())
-                    })
-                }
-                else {
-                    localStorage.removeItem('token')
-                }
-            })
+            props.history.push('/add_snippet')
         }
         else{
-            fetch(process.env.REACT_APP_API_URL + '/api/get_public_posts', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                method: "GET"
-            }).then((response) => {
-                if (response.status === 200) {
-                    response.json().then(value => {
-                        console.log(value)
-                        setPosts(value.reverse())
-                    })
-                }
-                else {
-                    localStorage.removeItem('token')
-                }
-            })
+            setSigninDialohOpen(true);
         }
         
-    }, [token])
+    }
 
-    console.log(posts)
     return (
         <div className={classes.grow}>
             <Grid container component="main">
                 <Grid item xs={12} md={2}>
                 </Grid>
                 <Grid item xs={12} md={8}>
-                    {
+                    {posts !== null && <div>{
                         posts.map((post, index) => {
                             return <HomeCard post={post}></HomeCard>
                         })
+                    }</div>}
+                    {
+                        contextLoading && <div>
+                        <Skeleton variant="rect" animation="wave" height={118} />
+                        <Skeleton animation="wave" />
+                        <Skeleton animation="wave" />
+                        <Skeleton animation="wave" />
+                        <br></br><br></br>
+                        <Skeleton variant="rect" animation="wave" height={118} />
+                        <Skeleton animation="wave" />
+                        <Skeleton animation="wave" />
+                        <Skeleton animation="wave" />
+                        </div>
                     }
                 </Grid>
                 <Grid item xs={12} md={2}>
+                <Fab color="primary" aria-label="add" className={classes.fab} onClick={handleAddButton}>
+                        <AddIcon />
+                    </Fab>
                     <Paper className={classes.rightPanel} elevation={0}>
                         <Paper className={classes.subRpaper} elevation={0}>
                             <Button
@@ -109,6 +106,7 @@ export default function Home(props) {
                     </Paper>
                 </Grid>
             </Grid>
+            <SigninDialog open={signinDialogOpen} setOpen={setSigninDialohOpen}></SigninDialog>
         </div>
     );
 }

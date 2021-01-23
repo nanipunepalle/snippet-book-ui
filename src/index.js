@@ -4,11 +4,11 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { CssBaseline } from '@material-ui/core';
 import { ThemeProvider } from '@material-ui/core/styles';
-import { darkTheme } from './theme'
+import { lightTheme } from './theme'
 
 ReactDOM.render(
   <React.StrictMode>
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={lightTheme}>
       <CssBaseline>
         <App />
       </CssBaseline>

@@ -7,19 +7,24 @@ import DialogContent from '@material-ui/core/DialogContent';
 // import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Box from '@material-ui/core/Box';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import AuthContext from '../AuthContext';
+import SignupDialog from './SignupDialog';
 
 export default function SigninDialog(props) {
 
-    const {setCurrentUser} = React.useContext(AuthContext);
+    const { setCurrentUser } = React.useContext(AuthContext);
+    const [signupDialohOpen, setSignupDialogOpen] = React.useState(false);
+    const [loading, setLoading] = React.useState(false);
 
     const handleClose = () => {
         props.setOpen(false);
     };
 
     const handleSignin = (e) => {
-        e.preventDefault()
+        e.preventDefault();
+        setLoading(true);
         const { email, password } = e.target.elements;
         try {
             var data = new FormData()
@@ -36,13 +41,15 @@ export default function SigninDialog(props) {
                 method: 'POST',
                 body: data
             }).then(response => {
-                if(response.status === 200){
-                    response.json().then(value=>{
+                if (response.status === 200) {
+                    response.json().then(value => {
                         // console.log(value)
-                        localStorage.setItem('token',value.token);
-                        console.log(value.user)
+                        localStorage.setItem('token', value.token);
+                        // console.log(value.user)
                         setCurrentUser(value.user);
+                        setLoading(false);
                         props.setOpen(false);
+                        
                     })
                 }
             })
@@ -52,11 +59,16 @@ export default function SigninDialog(props) {
         }
     }
 
+    const handleSignupClick = () => {
+        props.setOpen(false);
+        setSignupDialogOpen(true);
+    }
+
     return (
         <div>
-            <Dialog open={props.open} onClose={handleClose} maxWidth="sm" fullWidth aria-labelledby="form-dialog-title">
-                <DialogTitle id="form-dialog-title"><Box display="flex" justifyContent="center">Signup</Box></DialogTitle>
-                <form onSubmit={handleSignin} style={{padding:"20px",paddingTop:"0px"}}>
+            <Dialog open={props.open} onClose={handleClose} maxWidth="sm" fullWidth aria-labelledby="signup-dialog">
+                <DialogTitle id="signup-dialog-title"><Box display="flex" justifyContent="center">Signin</Box></DialogTitle>
+                <form onSubmit={handleSignin} style={{ padding: "20px", paddingTop: "0px" }}>
                     <DialogContent>
                         <TextField
                             margin="dense"
@@ -78,12 +90,22 @@ export default function SigninDialog(props) {
                         />
                     </DialogContent>
                     <DialogActions>
-                        <Button fullWidth variant="contained" type="submit" color="primary">
-                            Signin
+                        <Button fullWidth variant="contained" type="submit" color="primary" disabled={loading}>
+                        {loading ? <CircularProgress color="primary" size={24} /> : "Sign In"}
                         </Button>
                     </DialogActions>
+                    <Box display="flex">
+                        <Box flexGrow={1}>
+                            <Button onClick={handleSignupClick}>New User? signup</Button>
+                        </Box>
+                        <Box>
+                            <Button>Forgot Password</Button>
+                        </Box>
+                    </Box>
                 </form>
+
             </Dialog>
+            <SignupDialog open={signupDialohOpen} setOpen={setSignupDialogOpen}></SignupDialog>
         </div>
     );
 }

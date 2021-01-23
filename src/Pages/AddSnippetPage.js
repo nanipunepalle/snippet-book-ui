@@ -11,6 +11,8 @@ import Chip from '@material-ui/core/Chip';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
+import CloseIcon from '@material-ui/icons/Close';
+import IconButton from '@material-ui/core/IconButton';
 
 
 import AceEditor from 'react-ace';
@@ -44,7 +46,15 @@ const useStyles = makeStyles((theme) => ({
     button: {
         marginTop: theme.spacing(3),
         marginBottom: theme.spacing(4),
-    }
+    },
+    closeButton: {
+        position: 'absolute',
+        right: theme.spacing(1),
+        top: theme.spacing(7),
+        [theme.breakpoints.down('md')]: {
+            top: theme.spacing(12),
+        }
+    },
 }));
 
 export default function AddSnippetPage(props) {
@@ -60,8 +70,9 @@ export default function AddSnippetPage(props) {
         setCode(newValue);
     }
 
-    React.useEffect(() => {
-    }, [])
+    const handleCloseButton = () => {
+        props.history.goBack();
+    }
 
     const handleAddButton = () => {
         try {
@@ -102,7 +113,10 @@ export default function AddSnippetPage(props) {
 
                 </Grid>
                 <Grid item xs={12} md={8} >
-                    <Typography variant="h5">Store your code and access it with ease</Typography>
+                    <IconButton aria-label="close" className={classes.closeButton} onClick={handleCloseButton}>
+                        <CloseIcon fontSize="large" />
+                    </IconButton>
+                    <Typography variant="h5" style={{ margin: "20px" }}>Store your code and access it with ease</Typography>
                     <Autocomplete
                         aria-required
                         fullWidth
@@ -128,7 +142,7 @@ export default function AddSnippetPage(props) {
                         variant="outlined"
                     />
 
-                    <RadioGroup aria-label="type" name="type" defaultValue="public" onChange={(e) => { setType(e.target.value) }}>
+                    <RadioGroup color="secondary" aria-label="type" name="type" defaultValue="public" onChange={(e) => { setType(e.target.value) }}>
                         <FormControlLabel value="public" control={<Radio />} label="Public" />
                         <FormControlLabel value="private" control={<Radio />} label="Private" />
                     </RadioGroup>
@@ -169,8 +183,6 @@ export default function AddSnippetPage(props) {
                             onChange={onChange}
                             mode="javascript" />
                     </div>
-
-
                     <Button
                         variant="contained"
                         fullWidth color="primary"
