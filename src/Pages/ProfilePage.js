@@ -1,15 +1,19 @@
 import React from 'react';
+
+//material ui imports
+import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
-import { makeStyles } from '@material-ui/core/styles';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-
 import Box from '@material-ui/core/Box';
+
+//material imports
 import HomeCard from '../Components/HomeCard';
 import AuthContext from '../AuthContext';
+
 
 const useStyles = makeStyles((theme) => ({
     avatar: {
@@ -123,7 +127,6 @@ function ProfilePage(props) {
                         </Box>
                     </Box>
                 </Paper>
-
                 <Paper className={classes.root}>
                     <Tabs
                         value={value}
@@ -143,7 +146,6 @@ function ProfilePage(props) {
                             return <HomeCard post={post}></HomeCard>
                         })
                     }
-
                 </div>}
             </Grid>}
             <Grid item xs={12} md={2}>
@@ -154,4 +156,3 @@ function ProfilePage(props) {
 }
 
 export default ProfilePage;
-

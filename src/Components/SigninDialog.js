@@ -1,16 +1,18 @@
 import React from 'react';
+
+
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
-// import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Box from '@material-ui/core/Box';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 import AuthContext from '../AuthContext';
 import SignupDialog from './SignupDialog';
+import ApiService from '../Apis/apiservice';
 
 export default function SigninDialog(props) {
 
@@ -26,37 +28,27 @@ export default function SigninDialog(props) {
         e.preventDefault();
         setLoading(true);
         const { email, password } = e.target.elements;
-        try {
-            var data = new FormData()
-            const payload = {
-                email: email.value,
-                password: password.value,
-            };
-            data = JSON.stringify(payload);
-            fetch(process.env.REACT_APP_API_URL + '/api/signin', {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                method: 'POST',
-                body: data
-            }).then(response => {
+        var data = new FormData()
+        const payload = {
+            email: email.value,
+            password: password.value,
+        };
+        data = JSON.stringify(payload);
+        ApiService.signin(data, (response, success) => {
+            if (success) {
                 if (response.status === 200) {
                     response.json().then(value => {
-                        // console.log(value)
                         localStorage.setItem('token', value.token);
-                        // console.log(value.user)
                         setCurrentUser(value.user);
                         setLoading(false);
                         props.setOpen(false);
-                        
                     })
                 }
-            })
-        }
-        catch (error) {
-
-        }
+                else {
+                    //alert something went wrong
+                }
+            }
+        })
     }
 
     const handleSignupClick = () => {
@@ -91,7 +83,7 @@ export default function SigninDialog(props) {
                     </DialogContent>
                     <DialogActions>
                         <Button fullWidth variant="contained" type="submit" color="primary" disabled={loading}>
-                        {loading ? <CircularProgress color="primary" size={24} /> : "Sign In"}
+                            {loading ? <CircularProgress color="primary" size={24} /> : "Sign In"}
                         </Button>
                     </DialogActions>
                     <Box display="flex">
@@ -103,7 +95,6 @@ export default function SigninDialog(props) {
                         </Box>
                     </Box>
                 </form>
-
             </Dialog>
             <SignupDialog open={signupDialohOpen} setOpen={setSignupDialogOpen}></SignupDialog>
         </div>

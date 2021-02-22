@@ -1,0 +1,7 @@
+{
+    "name": "SnippetBook",
+    "integrations": {
+      "capacitor": {}
+    },
+    "type": "react"
+  }

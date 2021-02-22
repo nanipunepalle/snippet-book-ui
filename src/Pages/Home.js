@@ -1,6 +1,9 @@
 import React from 'react';
+
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Grid, Paper } from '@material-ui/core';
+import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import Paper from '@material-ui/core/Paper';
 import Skeleton from '@material-ui/lab/Skeleton';
 import Fab from '@material-ui/core/Fab';
 import AddIcon from '@material-ui/icons/Add';
@@ -50,18 +53,17 @@ const useStyles = makeStyles((theme) => ({
 export default function Home(props) {
     const classes = useStyles();
     const token = localStorage.getItem('token');
-    // const [posts, setPosts] = React.useState([]);
-    const {posts, contextLoading} = React.useContext(PostsContext);
-    const [signinDialogOpen,setSigninDialohOpen] = React.useState(false);
+    const { posts, contextLoading } = React.useContext(PostsContext);
+    const [signinDialogOpen, setSigninDialohOpen] = React.useState(false);
 
     const handleAddButton = () => {
-        if(token){
+        if (token) {
             props.history.push('/add_snippet')
         }
-        else{
+        else {
             setSigninDialohOpen(true);
         }
-        
+
     }
 
     return (
@@ -77,20 +79,20 @@ export default function Home(props) {
                     }</div>}
                     {
                         contextLoading && <div>
-                        <Skeleton variant="rect" animation="wave" height={118} />
-                        <Skeleton animation="wave" />
-                        <Skeleton animation="wave" />
-                        <Skeleton animation="wave" />
-                        <br></br><br></br>
-                        <Skeleton variant="rect" animation="wave" height={118} />
-                        <Skeleton animation="wave" />
-                        <Skeleton animation="wave" />
-                        <Skeleton animation="wave" />
+                            <Skeleton variant="rect" animation="wave" height={118} />
+                            <Skeleton animation="wave" />
+                            <Skeleton animation="wave" />
+                            <Skeleton animation="wave" />
+                            <br></br><br></br>
+                            <Skeleton variant="rect" animation="wave" height={118} />
+                            <Skeleton animation="wave" />
+                            <Skeleton animation="wave" />
+                            <Skeleton animation="wave" />
                         </div>
                     }
                 </Grid>
                 <Grid item xs={12} md={2}>
-                <Fab color="primary" aria-label="add" className={classes.fab} onClick={handleAddButton}>
+                    <Fab color="primary" aria-label="add" className={classes.fab} onClick={handleAddButton}>
                         <AddIcon />
                     </Fab>
                     <Paper className={classes.rightPanel} elevation={0}>

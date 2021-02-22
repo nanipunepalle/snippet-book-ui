@@ -1,10 +1,13 @@
 import React from 'react';
+
 import { makeStyles } from '@material-ui/core/styles';
-import { Button, Grid, Paper, Typography } from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
+import Paper from '@material-ui/core/Paper';
+import Typography from '@material-ui/core/Typography';
 
 import HomeCard from '../Components/HomeCard';
-
-
+import ApiService from '../Apis/apiservice';
 
 const useStyles = makeStyles((theme) => ({
     grow: {
@@ -41,22 +44,20 @@ export default function YourSnippets(props) {
     }
 
     React.useEffect(() => {
-        if(token){
-            fetch(process.env.REACT_APP_API_URL + '/api/get_your_posts', {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                method: "GET"
-            }).then((response) => {
-                if (response.status === 200) {
-                    response.json().then(value => {
-                        setPosts(value.reverse())
-                    })
+        if (token) {
+            ApiService.getYourPosts(token, (response, success) => {
+                if (success) {
+                    if (response.status === 200) {
+                        response.json().then(value => {
+                            setPosts(value.reverse())
+                        })
+                    }
+                    else {
+                        localStorage.removeItem('token')
+                    }
                 }
-                else {
-                    localStorage.removeItem('token')
+                else{
+                    //alert something went wrong
                 }
             })
         }
@@ -67,12 +68,10 @@ export default function YourSnippets(props) {
                 <Grid item xs={12} md={2}>
                 </Grid>
                 <Grid item xs={12} md={8}>
-                <Typography variant="h5" style={{margin:"10px"}}>Your Snippets</Typography>
-                    {
-                        posts.map((post, index) => {
-                            return <HomeCard post={post}></HomeCard>
-                        })
-                    }
+                    <Typography variant="h5" style={{ margin: "10px" }}>Your Snippets</Typography>
+                    {posts.map((post, index) => {
+                        return <HomeCard post={post}></HomeCard>
+                    })}
                 </Grid>
                 <Grid item xs={12} md={2}>
                     <Paper className={classes.rightPanel} elevation={0}>

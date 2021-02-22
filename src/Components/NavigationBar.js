@@ -1,5 +1,6 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom'
+
 import { fade, makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -8,22 +9,19 @@ import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
-// import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
-import { Button } from '@material-ui/core';
-// import Autocomplete from '@material-ui/lab/Autocomplete';
-// import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Grow from '@material-ui/core/Grow';
 import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
-// import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 
 import SigninDialog from './SigninDialog';
 import SignupDialog from './SignupDialog';
 import AuthContext from '../AuthContext';
+import ApiService from '../Apis/apiservice';
 
 const useStyles = makeStyles((theme) => ({
     grow: {
@@ -90,7 +88,6 @@ const useStyles = makeStyles((theme) => ({
         },
     },
     button: {
-        // maxWidth: "400px",
         fullWidth: true,
         borderRadius: theme.spacing(1),
         margin: theme.spacing(2),
@@ -110,7 +107,6 @@ export default withRouter(function NavigationBar(props) {
     const [sortedPosts, setSortedPosts] = React.useState([])
 
     const isMenuOpen = Boolean(anchorEl);
-    // const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
     const { setCurrentUser } = React.useContext(AuthContext);
 
@@ -118,9 +114,7 @@ export default withRouter(function NavigationBar(props) {
     const anchorRef = React.useRef(null);
 
     const handleToggle = () => {
-        // setOpen((prevOpen) => !prevOpen);
         setOpen(true)
-        // anchorRef.focus()
     };
 
     const handleClose = (event) => {
@@ -137,16 +131,6 @@ export default withRouter(function NavigationBar(props) {
             setOpen(false);
         }
     }
-
-    // return focus to the button when we transitioned from !open -> open
-    //   const prevOpen = React.useRef(open);
-    //   React.useEffect(() => {
-    //     if (prevOpen.current === true && open === false) {
-    //       anchorRef.current.focus();
-    //     }
-
-    //     prevOpen.current = open;
-    //   }, [open]);
 
     React.useEffect(() => {
         if (token) {
@@ -166,27 +150,25 @@ export default withRouter(function NavigationBar(props) {
     };
 
     const handleLogOut = () => {
-        fetch(process.env.REACT_APP_API_URL + '/api/user/logout', {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            method: "GET"
-        }).then((response) => {
-            if (response.status === 200) {
-                response.json().then(value => {
-                    setAnchorEl(null)
+        ApiService.logout(token, (response, success) => {
+            if (success) {
+                if (response.status === 200) {
+                    response.json().then(value => {
+                        setAnchorEl(null)
+                        localStorage.removeItem('token');
+                        setCurrentUser(null);
+                        setAuthorised(false);
+                        props.history.push('/')
+                    })
+                }
+                else {
                     localStorage.removeItem('token');
                     setCurrentUser(null);
-                    setAuthorised(false);
-                    props.history.push('/')
-                })
+                    setAuthorised(false)
+                }
             }
             else {
-                localStorage.removeItem('token');
-                setCurrentUser(null);
-                setAuthorised(false)
+                //alert aomething went wrong error
             }
         })
     }
@@ -228,7 +210,7 @@ export default withRouter(function NavigationBar(props) {
         <div className={classes.grow}>
             <AppBar position="sticky">
                 <Toolbar>
-                    <Button style={{ color: "#ffffff" }} onClick={() => { setIsHome(true);props.history.push('/') }}><Typography className={classes.title} variant="h6" noWrap>
+                    <Button style={{ color: "#ffffff" }} onClick={() => { setIsHome(true); props.history.push('/') }}><Typography className={classes.title} variant="h6" noWrap>
                         SnippetBook
                     </Typography>
                     </Button>
@@ -247,7 +229,6 @@ export default withRouter(function NavigationBar(props) {
                                 input: classes.inputInput,
                             }}
                             onFocus={handleToggle}
-                            // onBlur={handleSearchChange}
                             inputProps={{ 'aria-label': 'search' }}
                             ref={anchorRef}
                         />
@@ -297,7 +278,6 @@ export default withRouter(function NavigationBar(props) {
                     </div>
                 </Toolbar>
             </AppBar>
-
             {renderMenu}
             <div>
                 {props.children}
