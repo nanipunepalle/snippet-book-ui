@@ -74,7 +74,7 @@ export default function Home(props) {
                 <Grid item xs={12} md={8}>
                     {posts !== null && <div>{
                         posts.map((post, index) => {
-                            return <HomeCard post={post}></HomeCard>
+                            return <HomeCard key={index} post={post}></HomeCard>
                         })
                     }</div>}
                     {

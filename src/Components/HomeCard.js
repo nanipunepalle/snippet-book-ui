@@ -18,6 +18,7 @@ import AceEditor from 'react-ace';
 import "ace-builds/src-noconflict/mode-javascript";
 import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/theme-monokai";
+import ShareDialog from '../Components/ShareDialog';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -37,8 +38,12 @@ const useStyles = makeStyles((theme) => ({
 
 export default function HomeCard(props) {
     const classes = useStyles();
+    const token  = localStorage.getItem('token');
+    const [open,setOpen] = React.useState(false);
     const [postedDate, setPostedDate] = React.useState(null);
     const post = props.post;
+
+   
 
     React.useEffect(() => {
         const postedate = new Date(post.posted_on.$date);
@@ -50,11 +55,29 @@ export default function HomeCard(props) {
     }
 
     const handleLikeButton = () => {
-
+        fetch(process.env.REACT_APP_API_URL+"/api/post/add_like?id="+post._id["$oid"],{
+            headers:{
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            method: 'GET'
+        }).then(response=>{
+            if(response.status === 200){
+                console.log(response);
+                response.json().then(value=>{
+                    console.log(value);
+                })
+            }
+        })
     }
 
     const handleShareButton = () => {
+        setOpen(true);
+    }
 
+    const handleShareDialogClose = () => {
+        setOpen(false);
     }
 
     return (
@@ -103,7 +126,7 @@ export default function HomeCard(props) {
                 action={
                     <React.Fragment>
                         <IconButton aria-label="add to favorites" onClick={handleLikeButton}>
-                            <ThumbUpIcon />
+                            <ThumbUpIcon />{post.likes}
                         </IconButton>
                         <IconButton aria-label="share" onClick={handleShareButton}>
                             <ShareIcon />
@@ -112,6 +135,7 @@ export default function HomeCard(props) {
                 title={post.user_name}
                 subheader={postedDate !== null && postedDate.toDateString()}
             />
+            <ShareDialog post={post} open={open} handleClose={handleShareDialogClose}></ShareDialog>
         </Card>
     );
 }

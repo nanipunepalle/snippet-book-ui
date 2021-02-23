@@ -9,6 +9,7 @@ import ProfilePage from './Pages/ProfilePage';
 import YourSnippet from './Components/YourSnippets';
 import AuthContext from './AuthContext';
 import PostsContext from './PostsContext';
+import SnippetViewPage from './Pages/SnippetViewPage';
 
 import ApiService from './Apis/apiservice';
 
@@ -45,6 +46,7 @@ function App() {
       ApiService.getAllPosts(token, (response) => {
         if (response.status === 200) {
           response.json().then(value => {
+            console.log(value);
             setPosts(value.reverse())
             setContextLoading(false)
           })
@@ -82,6 +84,8 @@ function App() {
                 <Route exact path="/add_snippet" component={AddSnippetPage} />
                 <Route exact path="/your_snippets" component={YourSnippet} />
                 <Route exact path="/profile" component={ProfilePage} />
+                <Route exact path="/profile" component={ProfilePage} />
+                <Route exact path="/snippet/:id" component={SnippetViewPage}></Route>
               </NavigationBar>
             </PostsContext.Provider>
           </AuthContext.Provider>
