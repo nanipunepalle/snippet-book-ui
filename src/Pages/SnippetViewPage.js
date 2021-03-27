@@ -43,7 +43,7 @@ export default function SnippetViewPage(props) {
     const [post, setPost] = React.useState(null);
 
     React.useEffect(() => {
-        fetch(process.env.REACT_APP_API_URL + '/api/get_post?id=' + id, {
+        fetch(process.env.REACT_APP_API_URL + '/get_post?id=' + id, {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'

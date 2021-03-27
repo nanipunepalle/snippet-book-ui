@@ -10,6 +10,7 @@ import YourSnippet from './Components/YourSnippets';
 import AuthContext from './AuthContext';
 import PostsContext from './PostsContext';
 import SnippetViewPage from './Pages/SnippetViewPage';
+import EditSnippetPage from './Components/EditSnippet';
 
 import ApiService from './Apis/apiservice';
 
@@ -84,8 +85,8 @@ function App() {
                 <Route exact path="/add_snippet" component={AddSnippetPage} />
                 <Route exact path="/your_snippets" component={YourSnippet} />
                 <Route exact path="/profile" component={ProfilePage} />
-                <Route exact path="/profile" component={ProfilePage} />
                 <Route exact path="/snippet/:id" component={SnippetViewPage}></Route>
+                <Route exact path="/edit_snippet/:id" component={EditSnippetPage}></Route>
               </NavigationBar>
             </PostsContext.Provider>
           </AuthContext.Provider>

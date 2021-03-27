@@ -2,7 +2,7 @@
 
 const signin = (data, cb) => {
     try {
-        fetch(process.env.REACT_APP_API_URL + '/api/signin', {
+        fetch(process.env.REACT_APP_API_URL + '/signin', {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -20,7 +20,7 @@ const signin = (data, cb) => {
 
 const signup = (data, cb) => {
     try {
-        fetch(process.env.REACT_APP_API_URL + '/api/signup', {
+        fetch(process.env.REACT_APP_API_URL + '/signup', {
             headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
@@ -38,7 +38,7 @@ const signup = (data, cb) => {
 
 const getUser = (token, cb) => {
     try {
-        fetch(process.env.REACT_APP_API_URL + '/api/user/me', {
+        fetch(process.env.REACT_APP_API_URL + '/user/me', {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
@@ -56,7 +56,7 @@ const getUser = (token, cb) => {
 
 const getAllPosts = (token, cb) => {
     try {
-        fetch(process.env.REACT_APP_API_URL + '/api/get_all_posts', {
+        fetch(process.env.REACT_APP_API_URL + '/get_all_posts', {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
@@ -74,11 +74,13 @@ const getAllPosts = (token, cb) => {
 
 const getPublicPosts = (cb) => {
     try {
-        fetch(process.env.REACT_APP_API_URL + '/api/get_public_posts', {
+        fetch(process.env.REACT_APP_API_URL + '/get_public_posts', {
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'Access-Control-Allow-Origin':'*'
             },
+            mode: 'cors',
             method: "GET"
         }).then((response) => {
             cb(response, true)
@@ -91,7 +93,7 @@ const getPublicPosts = (cb) => {
 
 const getYourPosts = (token, cb) => {
     try {
-        fetch(process.env.REACT_APP_API_URL + '/api/get_your_posts', {
+        fetch(process.env.REACT_APP_API_URL + '/get_your_posts', {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',
@@ -109,7 +111,7 @@ const getYourPosts = (token, cb) => {
 
 const logout = (token,cb) => {
     try{
-        fetch(process.env.REACT_APP_API_URL + '/api/user/logout', {
+        fetch(process.env.REACT_APP_API_URL + '/user/logout', {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json',

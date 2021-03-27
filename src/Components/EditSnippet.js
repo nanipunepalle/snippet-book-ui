@@ -1,7 +1,5 @@
 import React from 'react';
 
-
-
 import { makeStyles } from '@material-ui/core/styles';
 import { Button, Grid, Typography } from '@material-ui/core';
 // import Button fro
@@ -25,6 +23,7 @@ import Languages from '../Components/Languages';
 import FrameWorks from '../Components/FrameWorks';
 import AlertToast from '../Components/AlertToast';
 import PostsContext from '../PostsContext';
+
 
 const useStyles = makeStyles((theme) => ({
     grow: {
@@ -59,14 +58,16 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function AddSnippetPage(props) {
+export default function EditSnippetPage(props) {
     const classes = useStyles();
+    const id = props.match.params.id;
     const token = localStorage.getItem("token");
     const [desc, setDesc] = React.useState(null);
     const [lang, setLang] = React.useState(null);
     const [frameWorks, setFrameWorks] = React.useState([]);
     const [code, setCode] = React.useState(null);
     const [type, setType] = React.useState('public');
+    // const [post, setPost] = React.useState(null);
     const [loading, setLoading] = React.useState(false);
     const [state, setState] = React.useState({
         open: false,
@@ -77,6 +78,29 @@ export default function AddSnippetPage(props) {
     });
     const { setPosts } = React.useContext(PostsContext);
 
+
+    React.useEffect(() => {
+        fetch(process.env.REACT_APP_API_URL + '/get_post?id=' + id, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            method: "GET"
+        }).then((response) => {
+            if (response.status === 200) {
+                response.json().then(value => {
+                    // setPost(value[0])
+                    setDesc(value[0].desc);
+                    setType(value[0].access_type);
+                    setLang(value[0].language);
+                    setCode(value[0].code);
+                    setFrameWorks(value[0].frameworks)
+                })
+            }
+        })
+    }, [id])
+
+
     function onChange(newValue) {
         setCode(newValue);
     }
@@ -85,19 +109,20 @@ export default function AddSnippetPage(props) {
         props.history.goBack();
     }
 
-    const handleAddButton = () => {
-        setLoading(true);
+    const handleEditButton = () => {
         try {
+            setLoading(true);
             var data = new FormData()
             const payload = {
                 desc: desc,
                 lang: lang,
                 frameworks: frameWorks,
                 code: code,
-                type: type
+                type: type,
+                post_id: id
             };
             data = JSON.stringify(payload);
-            fetch(process.env.REACT_APP_API_URL + '/user/add_snippet', {
+            fetch(process.env.REACT_APP_API_URL + '/user/edit_snippet', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
@@ -116,7 +141,7 @@ export default function AddSnippetPage(props) {
                             message: "Successfull",
                             type: "success",
                         })
-                        props.history.push('/');
+                        props.history.push(`/snippet/${id}`);
                     })
                 }
                 else {
@@ -138,7 +163,6 @@ export default function AddSnippetPage(props) {
                 message: "Something went wrong Try again",
                 type: "error",
             })
-
         }
     }
 
@@ -161,11 +185,10 @@ export default function AddSnippetPage(props) {
                         options={Languages}
                         getOptionLabel={(option) => option}
                         className={classes.field}
-                        value={lang}
+                        value={lang || ''}
                         onChange={(e, v) => { setLang(v) }}
                         renderInput={(params) => <TextField required {...params} fullWidth label="Language" variant="filled" />}
                     />
-
                     <TextField
                         id="description"
                         label="Description"
@@ -174,16 +197,14 @@ export default function AddSnippetPage(props) {
                         required
                         rows={5}
                         className={classes.descField}
-                        value={desc}
+                        value={desc || ""}
                         onChange={(e) => { setDesc(e.target.value) }}
                         variant="outlined"
                     />
-
-                    <RadioGroup color="secondary" aria-label="type" name="type" defaultValue="public" onChange={(e) => { setType(e.target.value) }}>
+                    <RadioGroup color="secondary" aria-label="type" name="type" value={type} onChange={(e) => { setType(e.target.value) }}>
                         <FormControlLabel value="public" control={<Radio />} label="Public" />
                         <FormControlLabel value="private" control={<Radio />} label="Private" />
                     </RadioGroup>
-
                     <Autocomplete
                         fullWidth
                         id="language"
@@ -222,10 +243,11 @@ export default function AddSnippetPage(props) {
                     </div>
                     <Button
                         variant="contained"
+                        disabled={loading}
                         fullWidth color="primary"
-                        onClick={handleAddButton}
+                        onClick={handleEditButton}
                         className={classes.button}>
-                        {loading ? <CircularProgress color="primary" size={24} /> : "Save"}
+                        {loading ? <CircularProgress color="primary" size={24} /> : "Edit"}
                     </Button>
                 </Grid>
             </Grid>

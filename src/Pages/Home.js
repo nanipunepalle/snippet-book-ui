@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from "react-router";
 
 import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
@@ -50,7 +51,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default function Home(props) {
+const Home = (props) => {
     const classes = useStyles();
     const token = localStorage.getItem('token');
     const { posts, contextLoading } = React.useContext(PostsContext);
@@ -112,3 +113,7 @@ export default function Home(props) {
         </div>
     );
 }
+
+export default withRouter(Home);
+
+

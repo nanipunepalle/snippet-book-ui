@@ -1,4 +1,6 @@
 import React from 'react';
+
+import { makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -7,14 +9,33 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import Box from '@material-ui/core/Box';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import CloseIcon from '@material-ui/icons/Close';
+import IconButton from '@material-ui/core/IconButton';
 
 import AuthContext from '../AuthContext';
 import ApiService from '../Apis/apiservice';
+import AlertToast from '../Components/AlertToast';
+
+const useStyles = makeStyles((theme) => ({
+    icons: {
+        position: 'absolute',
+        right: theme.spacing(1),
+        top: theme.spacing(0.5),
+    },
+}));
 
 export default function SignupDialog(props) {
 
+    const classes = useStyles();
     const { setCurrentUser } = React.useContext(AuthContext);
     const [loading, setLoading] = React.useState(false);
+    const [state, setState] = React.useState({
+        open: false,
+        vertical: 'top',
+        horizontal: 'center',
+        message: 'success',
+        type: 'error'
+    });
 
     const handleClose = () => {
         props.setOpen(false);
@@ -37,12 +58,34 @@ export default function SignupDialog(props) {
                     response.json().then(value => {
                         localStorage.setItem('token', value.token);
                         setCurrentUser(value.user);
-                        props.setOpen(false);
                         setLoading(false);
+                        setState({
+                            ...state,
+                            open: true,
+                            message: "Signup Successful",
+                            type: "success",
+                        })
+                        props.setOpen(false);
+                    })
+                }
+                else if (response.status === 202) {
+                    setLoading(false);
+                    setState({
+                        ...state,
+                        open: true,
+                        message: "User already exists, Please signin",
+                        type: "error",
                     })
                 }
                 else {
                     //alert something went wrong
+                    setLoading(false);
+                    setState({
+                        ...state,
+                        open: true,
+                        message: "Something went wrong try again",
+                        type: "error",
+                    })
                 }
             }
         })
@@ -55,8 +98,16 @@ export default function SignupDialog(props) {
 
     return (
         <div>
+            <AlertToast state={state} setState={setState}></AlertToast>
             <Dialog open={props.open} onClose={handleClose} maxWidth="sm" fullWidth aria-labelledby="form-dialog-title">
-                <DialogTitle id="form-dialog-title"><Box display="flex" justifyContent="center">Signup</Box></DialogTitle>
+                <DialogTitle id="form-dialog-title">
+                    <Box display="flex" justifyContent="center">Signup</Box>
+                    <div className={classes.icons}>
+                        <IconButton aria-label="close" className={classes.closeButton} onClick={handleClose}>
+                            <CloseIcon fontSize="large" />
+                        </IconButton>
+                    </div>
+                </DialogTitle>
                 <form onSubmit={handleSignup} style={{ padding: "20px", paddingTop: "0px" }}>
                     <DialogContent>
                         <TextField

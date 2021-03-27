@@ -70,7 +70,7 @@ function ProfilePage(props) {
             //         localStorage.removeItem('token')
             //     }
             // })
-            fetch(process.env.REACT_APP_API_URL + '/api/get_your_posts', {
+            fetch(process.env.REACT_APP_API_URL + '/get_your_posts', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
