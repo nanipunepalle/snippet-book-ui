@@ -21,6 +21,9 @@ import "ace-builds/src-noconflict/theme-github";
 import "ace-builds/src-noconflict/theme-monokai";
 import ShareDialog from '../Components/ShareDialog';
 import AuthContext from '../AuthContext';
+import PostsContext from '../PostsContext';
+import ConfirmDialog from '../Components/ConfirmDialog';
+import AlertToast from '../Components/AlertToast';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -43,9 +46,19 @@ const HomeCard = (props) => {
     const { currentUser } = React.useContext(AuthContext);
     const token = localStorage.getItem('token');
     const [open, setOpen] = React.useState(false);
+    const [confirmOpen,setConfirmOpen] = React.useState(false);
     const [postedDate, setPostedDate] = React.useState(null);
     const [editAccess, setEditAccess] = React.useState(false);
+    // const [loading,setLoading] = React.useState(false);
     const post = props.post;
+    const [state, setState] = React.useState({
+        open: false,
+        vertical: 'top',
+        horizontal: 'center',
+        message: 'success',
+        type: 'error'
+    });
+    const { setPosts } = React.useContext(PostsContext);
 
     React.useEffect(() => {
         const postedate = new Date(post.posted_on.$date);
@@ -57,8 +70,28 @@ const HomeCard = (props) => {
         }
     }, [post, currentUser])
 
-    const handleCopyButton = () => {
-        navigator.clipboard.writeText(post.code)
+    const handleCopyButton = async () => {
+        // navigator.clipboard.writeText(post.code)
+        try {
+            await navigator.clipboard.writeText(post.code);
+            setState({
+                open: true,
+                vertical: 'top',
+                horizontal: 'center',
+                message: 'Copied to clipboard',
+                type: "success",
+                autoHide: 3000
+            });
+        } catch (err) {
+            setState({
+                open: true,
+                vertical: 'top',
+                horizontal: 'center',
+                message: err.message,
+                type: "error",
+                autoHide: 4000
+            })
+        }
     }
 
     const handleLikeButton = () => {
@@ -92,11 +125,66 @@ const HomeCard = (props) => {
     }
 
     const handleDeleteButton = () => {
+        setConfirmOpen(true)
+    }
 
+    const deleteConfirm = () => {
+        try {
+            // setLoading(true);
+            var data = new FormData()
+            const payload = {
+                post_id: post._id["$oid"]
+            };
+            data = JSON.stringify(payload);
+            fetch(process.env.REACT_APP_API_URL + '/user/delete_snippet', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                method: 'POST',
+                body: data
+            }).then(response => {
+                if (response.status === 200) {
+                    response.json().then(value => {
+                        setPosts(value.posts.reverse())
+                        // setLoading(false);
+                        setState({
+                            ...state,
+                            open: true,
+                            message: "Successfull",
+                            type: "success",
+                        })
+                        setConfirmOpen(false);
+                        // props.history.push(`/snippet/${id}`);
+                    })
+                }
+                else {
+                    // setLoading(false);
+                    setState({
+                        ...state,
+                        open: true,
+                        message: "Something went wrong Try again",
+                        type: "error",
+                    })
+                }
+            })
+        }
+        catch (error) {
+            // console.log(error);
+            // setLoading(false);
+            setState({
+                ...state,
+                open: true,
+                message: "Something went wrong Try again",
+                type: "error",
+            })
+        }
     }
 
     return (
         <Card className={classes.root}>
+        <AlertToast state={state} setState={setState}></AlertToast>
             <CardHeader
                 action={
                     <div>
@@ -164,6 +252,7 @@ const HomeCard = (props) => {
                 subheader={postedDate !== null && postedDate.toDateString()}
             />
             <ShareDialog post={post} open={open} handleClose={handleShareDialogClose}></ShareDialog>
+            <ConfirmDialog open={confirmOpen} setOpen={setConfirmOpen} deleteConfirm={deleteConfirm}></ConfirmDialog>
         </Card>
     );
 }

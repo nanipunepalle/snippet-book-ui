@@ -47,7 +47,7 @@ function App() {
       ApiService.getAllPosts(token, (response) => {
         if (response.status === 200) {
           response.json().then(value => {
-            console.log(value);
+            // console.log(value);
             setPosts(value.reverse())
             setContextLoading(false)
           })

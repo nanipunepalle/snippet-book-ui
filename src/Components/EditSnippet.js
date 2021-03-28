@@ -28,6 +28,7 @@ import PostsContext from '../PostsContext';
 const useStyles = makeStyles((theme) => ({
     grow: {
         flexGrow: 1,
+        margin: theme.spacing(2)
     },
     editor: {
         height: "100px"

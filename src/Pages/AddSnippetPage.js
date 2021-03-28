@@ -29,6 +29,7 @@ import PostsContext from '../PostsContext';
 const useStyles = makeStyles((theme) => ({
     grow: {
         flexGrow: 1,
+        margin: theme.spacing(2)
     },
     editor: {
         height: "100px"
@@ -54,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
         right: theme.spacing(1),
         top: theme.spacing(7),
         [theme.breakpoints.down('md')]: {
-            top: theme.spacing(12),
+            top: theme.spacing(10),
         }
     },
 }));

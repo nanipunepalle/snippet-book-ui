@@ -204,6 +204,9 @@ export default withRouter(function NavigationBar(props) {
         setSortedPosts(posts.filter(p => { return p.desc.toLowerCase().includes(e.target.value.toLowerCase()) }))
     }
 
+    const handleSearchItemClick = (post) => () => {
+        props.history.push("/snippet/"+post._id["$oid"])
+    }
 
 
     return (
@@ -244,7 +247,7 @@ export default withRouter(function NavigationBar(props) {
                                             <MenuList id="sorted-posts-list" onKeyDown={handleListKeyDown}>
                                                 {
                                                     sortedPosts.map((post, index) => {
-                                                        return <MenuItem key={index} onClick={handleClose}>{post.desc}</MenuItem>
+                                                        return <MenuItem key={index} onClick={handleSearchItemClick(post)}>{post.desc}</MenuItem>
                                                     })
                                                 }
                                             </MenuList>

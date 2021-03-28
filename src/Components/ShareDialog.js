@@ -29,10 +29,10 @@ export default function ShareDialog(props) {
         type: 'error',
         autoHide: 300
     });
-    const { vertical, horizontal, open, message, type, autoHide } = state;
+    
 
     React.useEffect(() => {
-        setTitle("http://localhost:3000/snippet/"+post._id["$oid"])
+        setTitle("https://snippet-book.web.app/snippet/"+post._id["$oid"])
     }, [post])
 
     function handleTitleChange(event) {
@@ -68,6 +68,8 @@ export default function ShareDialog(props) {
             })
         }
     };
+
+    const { vertical, horizontal, open, message, type, autoHide } = state;
 
 
     return (
