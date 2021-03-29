@@ -22,6 +22,7 @@ import SigninDialog from './SigninDialog';
 import SignupDialog from './SignupDialog';
 import AuthContext from '../AuthContext';
 import ApiService from '../Apis/apiservice';
+import Logo from '../Components/snippetbook3.png';
 
 const useStyles = makeStyles((theme) => ({
     grow: {
@@ -213,6 +214,7 @@ export default withRouter(function NavigationBar(props) {
         <div className={classes.grow}>
             <AppBar position="sticky">
                 <Toolbar>
+                <img src={Logo} height="65" width="65" alt="logo"></img>
                     <Button style={{ color: "#ffffff" }} onClick={() => { setIsHome(true); props.history.push('/') }}><Typography className={classes.title} variant="h6" noWrap>
                         SnippetBook
                     </Typography>
