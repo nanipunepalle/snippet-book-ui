@@ -26,9 +26,11 @@ import Logo from '../Components/snippetbook3.png';
 
 const useStyles = makeStyles((theme) => ({
     grow: {
-        flexGrow: 1,
-        padding: theme.spacing(0),
-        margin: theme.spacing(0)
+        [theme.breakpoints.up('md')]: {
+            flexGrow: 1,
+            padding: theme.spacing(0),
+            margin: theme.spacing(0),
+        },
     },
     menuButton: {
         marginRight: theme.spacing(2),
@@ -46,10 +48,10 @@ const useStyles = makeStyles((theme) => ({
         '&:hover': {
             backgroundColor: fade(theme.palette.common.white, 0.25),
         },
-        marginRight: theme.spacing(2),
         marginLeft: 0,
         width: '100%',
         [theme.breakpoints.up('sm')]: {
+            marginRight: theme.spacing(2),
             marginLeft: theme.spacing(3),
             width: '50%',
         },
@@ -206,7 +208,7 @@ export default withRouter(function NavigationBar(props) {
     }
 
     const handleSearchItemClick = (post) => () => {
-        props.history.push("/snippet/"+post._id["$oid"])
+        props.history.push("/snippet/" + post._id["$oid"])
     }
 
 
@@ -214,8 +216,8 @@ export default withRouter(function NavigationBar(props) {
         <div className={classes.grow}>
             <AppBar position="sticky">
                 <Toolbar>
-                <img src={Logo} height="65" width="65" alt="logo"></img>
-                    <Button style={{ color: "#ffffff" }} onClick={() => { setIsHome(true); props.history.push('/') }}><Typography className={classes.title} variant="h6" noWrap>
+                    <img src={Logo} onClick={() => { setIsHome(true); props.history.push('/') }} height="65" width="65" alt="logo"></img>
+                    <Button style={{ color: "#ffffff" }} className={classes.title} onClick={() => { setIsHome(true); props.history.push('/') }}><Typography variant="h6" noWrap>
                         SnippetBook
                     </Typography>
                     </Button>
