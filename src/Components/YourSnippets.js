@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 
 import HomeCard from '../Components/HomeCard';
 import ApiService from '../Apis/apiservice';
+import PostsContext from '../PostsContext';
 
 const useStyles = makeStyles((theme) => ({
     grow: {
@@ -38,7 +39,7 @@ export default function YourSnippets(props) {
     const classes = useStyles();
     const token = localStorage.getItem('token');
     const [posts, setPosts] = React.useState([]);
-
+    const { likedPosts } = React.useContext(PostsContext);
     const handleAddButton = () => {
         props.history.push('/add_snippet')
     }
@@ -70,8 +71,11 @@ export default function YourSnippets(props) {
                 <Grid item xs={12} md={8}>
                     <Typography variant="h5" style={{ margin: "10px" }}>Your Snippets</Typography>
                     {posts.map((post, index) => {
-                        return <HomeCard post={post}></HomeCard>
+                        return <HomeCard post={post} likedPosts={likedPosts}></HomeCard>
                     })}
+                    {
+                        posts.length === 0 && <Typography style={{ margin: "20px" }}>No Posts</Typography>
+                    }
                 </Grid>
                 <Grid item xs={12} md={2}>
                     <Paper className={classes.rightPanel} elevation={0}>

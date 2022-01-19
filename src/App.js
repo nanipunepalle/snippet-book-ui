@@ -19,9 +19,10 @@ function App() {
   const [currentUser, setCurrentUser] = React.useState(null);
   const [posts, setPosts] = React.useState([]);
   const [contextLoading, setContextLoading] = React.useState(false);
+  const [likedPosts,setLikedPosts]=React.useState([]);
 
   const value = { currentUser, setCurrentUser };
-  const postContextValue = { posts, setPosts, contextLoading, setContextLoading };
+  const postContextValue = { posts, setPosts, contextLoading, setContextLoading, likedPosts,setLikedPosts };
 
   React.useEffect(() => {
     if (token) {
@@ -55,6 +56,17 @@ function App() {
         else {
           localStorage.removeItem('token')
           setContextLoading(false);
+        }
+      })
+      ApiService.getLikedPosts(token,(response)=>{
+        if(response.status === 200){
+          response.json().then(value=>{
+            setLikedPosts(value)
+          })
+        }
+        else {
+          localStorage.removeItem('token')
+          // setContextLoading(false);
         }
       })
     }

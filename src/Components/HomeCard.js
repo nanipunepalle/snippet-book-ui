@@ -49,6 +49,7 @@ const HomeCard = (props) => {
     const [confirmOpen,setConfirmOpen] = React.useState(false);
     const [postedDate, setPostedDate] = React.useState(null);
     const [editAccess, setEditAccess] = React.useState(false);
+    const [liked,setLiked] = React.useState(false);
     // const [loading,setLoading] = React.useState(false);
     const post = props.post;
     const [state, setState] = React.useState({
@@ -58,7 +59,7 @@ const HomeCard = (props) => {
         message: 'success',
         type: 'error'
     });
-    const { setPosts } = React.useContext(PostsContext);
+    const { setPosts,likedPosts } = React.useContext(PostsContext);
 
     React.useEffect(() => {
         const postedate = new Date(post.posted_on.$date);
@@ -68,7 +69,14 @@ const HomeCard = (props) => {
                 setEditAccess(true);
             }
         }
-    }, [post, currentUser])
+        if(likedPosts){
+            likedPosts.forEach((value)=>{
+                if(value.post_id === post._id["$oid"]){
+                    setLiked(true);
+                }
+            })
+        }
+    }, [post, currentUser,likedPosts])
 
     const handleCopyButton = async () => {
         // navigator.clipboard.writeText(post.code)
@@ -104,9 +112,14 @@ const HomeCard = (props) => {
             method: 'GET'
         }).then(response => {
             if (response.status === 200) {
-                // console.log(response);
                 response.json().then(value => {
-                    // console.log(value);
+                    if(post.likes>0){
+                        post.likes = post.likes+1;
+                    }
+                    else{
+                        post.likes = 1;
+                    }
+                    setLiked(true);
                 })
             }
         })
@@ -241,7 +254,7 @@ const HomeCard = (props) => {
                 }
                 action={
                     <React.Fragment>
-                        <IconButton aria-label="add to favorites" onClick={handleLikeButton}>
+                        <IconButton color={liked ? "primary" : ""} aria-label="add to favorites" onClick={handleLikeButton}>
                             <ThumbUpIcon />{post.likes}
                         </IconButton>
                         <IconButton aria-label="share" onClick={handleShareButton}>

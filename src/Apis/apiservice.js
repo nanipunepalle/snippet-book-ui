@@ -72,6 +72,24 @@ const getAllPosts = (token, cb) => {
     }
 }
 
+const getLikedPosts = (token, cb) => {
+    try {
+        fetch(process.env.REACT_APP_API_URL + '/get_liked_posts', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            method: "GET"
+        }).then((response) => {
+            cb(response, true)
+        })
+    }
+    catch (error) {
+        cb(error, false)
+    }
+}
+
 const getPublicPosts = (cb) => {
     try {
         fetch(process.env.REACT_APP_API_URL + '/get_public_posts', {
@@ -134,5 +152,6 @@ module.exports = {
     getAllPosts: getAllPosts,
     getPublicPosts: getPublicPosts,
     getYourPosts: getYourPosts,
+    getLikedPosts: getLikedPosts,
     logout: logout
 }
